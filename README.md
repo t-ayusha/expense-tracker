@@ -1,6 +1,31 @@
-# Getting Started with Create React App
+# Expense Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack expense tracking application built with React and Node.js.
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables:
+   - Copy `.env.example` to `.env`
+   - Fill in your MongoDB connection string and other required variables
+4. Start the server: `node server.js`
+5. In another terminal, start the React app: `npm start`
+
+## Environment Variables
+
+This project uses the following environment variables:
+
+- `MONGO_URI`: MongoDB connection string
+- `PORT`: Server port (optional, defaults to 5000)
+
+Copy `.env.example` to `.env` and update the values accordingly.
+
+**Important:** Never commit your `.env` file to version control. It contains sensitive information.
+
+## Available Scripts
+
+In the project directory, you can run:
 
 ## Available Scripts
 
