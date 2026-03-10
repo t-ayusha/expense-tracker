@@ -412,14 +412,17 @@ export const importFromJSON = (file) => {
 };
 
 // Format currency
-export const formatCurrency = (amount) => {
+export const formatCurrency = (amount, includeSymbol = true) => {
   // Use 'en-IN' for Indian numbering system
-  // Manually add Rupee symbol to avoid jsPDF font issues with Intl.NumberFormat currency
   const formatted = new Intl.NumberFormat('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
-  return `₹${formatted}`;
+  
+  if (includeSymbol) {
+    return `Rs.${formatted}`;
+  }
+  return formatted;
 };
 
 // Format date
