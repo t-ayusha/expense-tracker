@@ -281,10 +281,12 @@ app.delete('/api/categories/:userId/:categoryId', async (req, res) => {
 });
 
 const path = require('path');
-app.use(express.static(path.join(__dirname, 'client/build')));
+// serve React build assets (build directory is at project root)
+app.use(express.static(path.join(__dirname, 'build')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+// fallback for client-side routing: match everything under root
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 app.listen(PORT, () => {
