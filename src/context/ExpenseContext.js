@@ -37,9 +37,9 @@ export const ExpenseProvider = ({ children, userId }) => {
       });
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, loadUserData]);
 
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     try {
       // Fetch user data (budget and categories)
       const userDataRes = await fetch(`${API_URL}/user/${userId}/data`);
@@ -65,7 +65,7 @@ export const ExpenseProvider = ({ children, userId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   // Add expense
   const addExpense = useCallback(async (expense) => {

@@ -71,7 +71,7 @@ function AppContent() {
   };
 
   return (
-    <ExpenseProvider userId={currentUser.id}>
+    <ExpenseProvider userId={currentUser?.id}>
       <div className="app">
         <Header 
           activeTab={activeTab} 
