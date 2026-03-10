@@ -39,7 +39,7 @@ const MonthlyChart = () => {
               axisLine={false} 
               tickLine={false} 
               tick={{ fill: '#888', fontSize: 12 }}
-              tickFormatter={(value) => `$${value}`}
+              tickFormatter={(value) => `₹${value}`}
             />
             <Tooltip 
               formatter={(value) => [formatCurrency(value), 'Spent']}
