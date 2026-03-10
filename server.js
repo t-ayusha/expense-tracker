@@ -284,8 +284,8 @@ const path = require('path');
 // serve React build assets (build directory is at project root)
 app.use(express.static(path.join(__dirname, 'build')));
 
-// fallback for client-side routing: match everything under root
-app.get('/*', (req, res) => {
+// fallback for client-side routing: match everything under root (use regex to avoid path-to-regexp bug)
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
