@@ -26,19 +26,6 @@ export const ExpenseProvider = ({ children, userId }) => {
   });
 
   // Load data when userId changes
-  useEffect(() => {
-    if (userId) {
-      loadUserData();
-    } else {
-      setData({
-        expenses: [],
-        categories: [],
-        budget: 0
-      });
-      setLoading(false);
-    }
-  }, [userId, loadUserData]);
-
   const loadUserData = useCallback(async () => {
     try {
       // Fetch user data (budget and categories)
@@ -74,6 +61,19 @@ export const ExpenseProvider = ({ children, userId }) => {
       setLoading(false);
     }
   }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      loadUserData();
+    } else {
+      setData({
+        expenses: [],
+        categories: [],
+        budget: 0
+      });
+      setLoading(false);
+    }
+  }, [userId, loadUserData]);
 
   // Add expense
   const addExpense = useCallback(async (expense) => {
