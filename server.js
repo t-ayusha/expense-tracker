@@ -280,6 +280,10 @@ app.delete('/api/categories/:userId/:categoryId', async (req, res) => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.send("Expense Tracker API is running 🚀");
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
