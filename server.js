@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://tumuluayusha04:zQh23usVGfonyVpG@cluster0.yzxrmlh.mongodb.net/expense_db?appName=Cluster0';
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('Connected to MongoDB Atlas'))
@@ -280,9 +280,6 @@ app.delete('/api/categories/:userId/:categoryId', async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("Expense Tracker API is running 🚀");
-});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

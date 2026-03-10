@@ -43,10 +43,18 @@ export const ExpenseProvider = ({ children, userId }) => {
     try {
       // Fetch user data (budget and categories)
       const userDataRes = await fetch(`${API_URL}/user/${userId}/data`);
+      if (!userDataRes.ok) {
+        const text = await userDataRes.text();
+        throw new Error(`loadUserData user data failed (${userDataRes.status}): ${text}`);
+      }
       const userData = await userDataRes.json();
 
       // Fetch expenses
       const expensesRes = await fetch(`${API_URL}/expenses/${userId}`);
+      if (!expensesRes.ok) {
+        const text = await expensesRes.text();
+        throw new Error(`loadUserData expenses failed (${expensesRes.status}): ${text}`);
+      }
       const expenses = await expensesRes.json();
 
       setData({
@@ -81,7 +89,10 @@ export const ExpenseProvider = ({ children, userId }) => {
           date: expense.date || new Date().toISOString()
         })
       });
-
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`addExpense failed (${response.status}): ${text}`);
+      }
       const newExpense = await response.json();
       newExpense.id = newExpense._id;
       
@@ -110,6 +121,10 @@ export const ExpenseProvider = ({ children, userId }) => {
           date: updates.date
         })
       });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`updateExpense failed (${response.status}): ${text}`);
+      }
 
       const updatedExpense = await response.json();
 
@@ -128,9 +143,13 @@ export const ExpenseProvider = ({ children, userId }) => {
   // Delete expense
   const deleteExpense = useCallback(async (id) => {
     try {
-      await fetch(`${API_URL}/expenses/${id}`, {
+      const response = await fetch(`${API_URL}/expenses/${id}`, {
         method: 'DELETE'
       });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`deleteExpense failed (${response.status}): ${text}`);
+      }
 
       setData(prev => ({
         ...prev,
@@ -155,6 +174,10 @@ export const ExpenseProvider = ({ children, userId }) => {
           color: category.color
         })
       });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`addCategory failed (${response.status}): ${text}`);
+      }
 
       const categories = await response.json();
       
@@ -180,6 +203,10 @@ export const ExpenseProvider = ({ children, userId }) => {
           color: updates.color
         })
       });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`updateCategory failed (${response.status}): ${text}`);
+      }
 
       const categories = await response.json();
       
@@ -199,6 +226,10 @@ export const ExpenseProvider = ({ children, userId }) => {
       const response = await fetch(`${API_URL}/categories/${userId}/${id}`, {
         method: 'DELETE'
       });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`deleteCategory failed (${response.status}): ${text}`);
+      }
 
       const categories = await response.json();
       
@@ -215,11 +246,15 @@ export const ExpenseProvider = ({ children, userId }) => {
   // Set budget
   const setBudget = useCallback(async (amount) => {
     try {
-      await fetch(`${API_URL}/user/${userId}/data`, {
+      const response = await fetch(`${API_URL}/user/${userId}/data`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ budget: amount })
       });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`setBudget failed (${response.status}): ${text}`);
+      }
 
       setData(prev => ({
         ...prev,
