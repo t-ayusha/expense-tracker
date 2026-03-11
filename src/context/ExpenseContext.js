@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 
 const ExpenseContext = createContext();
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://expense-tracker-w5ch.onrender.com/api';
 
 export const useExpenses = () => {
   const context = useContext(ExpenseContext);

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://expense-tracker-w5ch.onrender.com/api';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
