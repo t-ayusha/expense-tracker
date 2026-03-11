@@ -230,3 +230,149 @@
   color: #888;
 }
 
+/* Category Budget Progress */
+.category-budget-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.cat-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cat-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.cat-progress-fill.near-budget {
+  background: linear-gradient(90deg, #f39c12 0%, #f1c40f 100%);
+}
+
+.cat-progress-fill.over-budget {
+  background: linear-gradient(90deg, #f5576c 0%, #f093fb 100%);
+}
+
+.cat-budget-status {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 35px;
+  text-align: right;
+}
+
+.cat-budget-status.near {
+  color: #f39c12;
+}
+
+.cat-budget-status.over {
+  color: #c62828;
+}
+
+/* Budget Alerts Modal */
+.budget-alert-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.budget-alert-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+.budget-alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.budget-alert-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.close-alert {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-alert:hover {
+  color: #333;
+}
+
+.budget-alert-list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.budget-alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.budget-alert-item.over {
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+}
+
+.budget-alert-item.near {
+  background: #fff8e1;
+  border: 1px solid #ffecb3;
+}
+
+.alert-icon {
+  font-size: 20px;
+}
+
+.alert-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-message {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.alert-amounts {
+  font-size: 12px;
+  color: #666;
+}
+
