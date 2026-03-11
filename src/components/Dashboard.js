@@ -121,46 +121,29 @@ const Dashboard = () => {
         <div className="category-breakdown">
           <h3>Category Breakdown</h3>
           <div className="category-list">
-            {chartData.length > 0 ? chartData
-              .sort((a, b) => b.value - a.value)
-              .map((item, index) => (
-                <div key={index} className="category-item">
-                  <div className="category-info">
-                    <span 
-                      className="category-icon" 
-                      style={{ backgroundColor: item.color }}
-                    >
-                      {item.icon}
-                    </span>
-                    <span className="category-name">{item.name}</span>
+            {chartData.length > 0 ? (
+              [...chartData]
+                .sort((a, b) => b.value - a.value)
+                .map((item, index) => (
+                  <div key={index} className="category-item">
+                    <div className="category-info">
+                      <span 
+                        className="category-icon" 
+                        style={{ backgroundColor: item.color }}
+                      >
+                        {item.icon}
+                      </span>
+                      <span className="category-name">{item.name}</span>
+                    </div>
+                    <div className="category-values">
+                      <span className="category-amount">{formatCurrency(item.value)}</span>
+                      <span className="category-percentage">
+                        {totalExpenses > 0 ? ((item.value / totalExpenses) * 100).toFixed(1) : 0}%
+                      </span>
+                    </div>
                   </div>
-                  <div className="category-values">
-                    <span className="category-amount">{formatCurrency(item.value)}</span>
-                    <span className="category-percentage">
-                      {totalExpenses > 0 ? ((item.value / totalExpenses) * 100).toFixed(1) : 0}%
-                    </span>
-                  </div>
-                </div>
-              )).sort((a, b) => b.props.children[1].props.children[0].props.children - a.props.children[1].props.children[0].props.children)
-              .map((item, index) => (
-                <div key={index} className="category-item">
-                  <div className="category-info">
-                    <span 
-                      className="category-icon" 
-                      style={{ backgroundColor: chartData[index]?.color }}
-                    >
-                      {chartData[index]?.icon}
-                    </span>
-                    <span className="category-name">{chartData[index]?.name}</span>
-                  </div>
-                  <div className="category-values">
-                    <span className="category-amount">{formatCurrency(chartData[index]?.value)}</span>
-                    <span className="category-percentage">
-                      {totalExpenses > 0 ? ((chartData[index]?.value / totalExpenses) * 100).toFixed(1) : 0}%
-                    </span>
-                  </div>
-                </div>
-              )) : (
+                ))
+            ) : (
                 <div className="no-data">No expenses recorded yet</div>
               )}
           </div>
