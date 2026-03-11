@@ -16,7 +16,8 @@ export const ExpenseProvider = ({ children, userId }) => {
   const [data, setData] = useState({
     expenses: [],
     categories: [],
-    budget: 0
+    budget: 0,
+    categoryBudgets: {}
   });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({
@@ -47,7 +48,8 @@ export const ExpenseProvider = ({ children, userId }) => {
       setData({
         expenses,
         categories: userData.categories || [],
-        budget: userData.budget || 0
+        budget: userData.budget || 0,
+        categoryBudgets: userData.categoryBudgets || {}
       });
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -55,7 +57,8 @@ export const ExpenseProvider = ({ children, userId }) => {
       setData({
         expenses: [],
         categories: getDefaultCategories(),
-        budget: 0
+        budget: 0,
+        categoryBudgets: {}
       });
     } finally {
       setLoading(false);
@@ -69,7 +72,8 @@ export const ExpenseProvider = ({ children, userId }) => {
       setData({
         expenses: [],
         categories: [],
-        budget: 0
+        budget: 0,
+        categoryBudgets: {}
       });
       setLoading(false);
     }
@@ -266,6 +270,30 @@ export const ExpenseProvider = ({ children, userId }) => {
     }
   }, [userId]);
 
+  // Set category budget
+  const setCategoryBudget = useCallback(async (categoryId, amount) => {
+    try {
+      const response = await fetch(`${API_URL}/user/${userId}/category-budget`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categoryId, amount })
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`setCategoryBudget failed (${response.status}): ${text}`);
+      }
+
+      const result = await response.json();
+      setData(prev => ({
+        ...prev,
+        categoryBudgets: result.categoryBudgets
+      }));
+    } catch (error) {
+      console.error('Error setting category budget:', error);
+      throw error;
+    }
+  }, [userId]);
+
   // Get filtered expenses
   const getFilteredExpenses = useCallback(() => {
     let filtered = [...data.expenses];
@@ -358,6 +386,7 @@ export const ExpenseProvider = ({ children, userId }) => {
     updateCategory,
     deleteCategory,
     setBudget,
+    setCategoryBudget,
     getFilteredExpenses,
     getExpensesByCategory,
     getMonthlyExpenses,

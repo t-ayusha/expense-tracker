@@ -1,13 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useExpenses } from '../context/ExpenseContext';
 import { exportToJSON, exportToTXT, exportToPDF, importFromJSON, formatCurrency } from '../utils/storage';
 import './Settings.css';
 
 const Settings = () => {
-  const { data, setBudget, addCategory, deleteCategory, updateCategory } = useExpenses();
+  const { data, setBudget, setCategoryBudget, addCategory, deleteCategory, updateCategory } = useExpenses();
   const [newCategory, setNewCategory] = useState({ name: '', icon: '📦', color: '#BDC3C7' });
   const [budgetInput, setBudgetInput] = useState(data.budget || '');
+  const [categoryBudgets, setCategoryBudgets] = useState({});
   const [showAddCategory, setShowAddCategory] = useState(false);
+  const [editingCategoryBudget, setEditingCategoryBudget] = useState(null);
+  const [categoryBudgetInput, setCategoryBudgetInput] = useState('');
   const [editingCategory, setEditingCategory] = useState(null);
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportOptions, setExportOptions] = useState({
@@ -20,6 +23,13 @@ const Settings = () => {
   });
   const fileInputRef = useRef(null);
 
+  // Initialize category budgets from data
+  useEffect(() => {
+    if (data.categoryBudgets) {
+      setCategoryBudgets(data.categoryBudgets);
+    }
+  }, [data.categoryBudgets]);
+
   const handleBudgetSave = async () => {
     const budget = parseFloat(budgetInput) || 0;
     try {
@@ -28,6 +38,24 @@ const Settings = () => {
     } catch (error) {
       alert('Error: ' + error.message);
     }
+  };
+
+  const handleCategoryBudgetSave = async (categoryId) => {
+    const amount = parseFloat(categoryBudgetInput) || 0;
+    try {
+      await setCategoryBudget(categoryId, amount);
+      setCategoryBudgets(prev => ({ ...prev, [categoryId]: amount }));
+      setEditingCategoryBudget(null);
+      setCategoryBudgetInput('');
+      alert(`Category budget set to ${formatCurrency(amount)}`);
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
+
+  const handleEditCategoryBudget = (category) => {
+    setEditingCategoryBudget(category._id);
+    setCategoryBudgetInput(categoryBudgets[category._id] || '');
   };
 
   const handleExportClick = () => {
@@ -226,6 +254,27 @@ const Settings = () => {
                       {category.icon}
                     </span>
                     <span className="category-name">{category.name}</span>
+                    {editingCategoryBudget === category._id ? (
+                      <div className="category-budget-edit">
+                        <input
+                          type="number"
+                          value={categoryBudgetInput}
+                          onChange={(e) => setCategoryBudgetInput(e.target.value)}
+                          placeholder="Budget"
+                          min="0"
+                          step="0.01"
+                        />
+                        <button onClick={() => handleCategoryBudgetSave(category._id)}>✓</button>
+                        <button onClick={() => setEditingCategoryBudget(null)}>✕</button>
+                      </div>
+                    ) : (
+                      <span className="category-budget">
+                        {categoryBudgets[category._id] > 0 
+                          ? `${formatCurrency(categoryBudgets[category._id])}` 
+                          : <button className="set-budget-btn" onClick={() => handleEditCategoryBudget(category)}>Set Budget</button>
+                        }
+                      </span>
+                    )}
                   </div>
                   <div className="category-actions">
                     <button 

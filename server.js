@@ -48,6 +48,7 @@ const categorySchema = new mongoose.Schema({
 const userDataSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   budget: { type: Number, default: 0 },
+  categoryBudgets: { type: Map, of: Number, default: {} }, // Category-specific budgets
   categories: [categorySchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
@@ -122,7 +123,7 @@ app.post('/api/auth/signin', async (req, res) => {
   }
 });
 
-// Get User Data (budget and categories)
+// Get User Data (budget, categoryBudgets and categories)
 app.get('/api/user/:userId/data', async (req, res) => {
   try {
     const userData = await UserData.findOne({ userId: req.params.userId });
@@ -131,12 +132,15 @@ app.get('/api/user/:userId/data', async (req, res) => {
       const newUserData = new UserData({
         userId: req.params.userId,
         budget: 0,
+        categoryBudgets: {},
         categories: defaultCategories
       });
       await newUserData.save();
-      return res.json({ budget: 0, categories: defaultCategories });
+      return res.json({ budget: 0, categoryBudgets: {}, categories: defaultCategories });
     }
-    res.json({ budget: userData.budget, categories: userData.categories });
+    // Convert Map to plain object for JSON response
+    const categoryBudgetsObj = userData.categoryBudgets ? Object.fromEntries(userData.categoryBudgets) : {};
+    res.json({ budget: userData.budget, categoryBudgets: categoryBudgetsObj, categories: userData.categories });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -161,6 +165,37 @@ app.put('/api/user/:userId/data', async (req, res) => {
     
     await userData.save();
     res.json({ message: 'Budget updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update Category Budget
+app.put('/api/user/:userId/category-budget', async (req, res) => {
+  try {
+    const { categoryId, amount } = req.body;
+    let userData = await UserData.findOne({ userId: req.params.userId });
+    
+    if (!userData) {
+      userData = new UserData({
+        userId: req.params.userId,
+        budget: 0,
+        categoryBudgets: { [categoryId]: amount },
+        categories: defaultCategories
+      });
+    } else {
+      // Convert Map to Object if needed, then update
+      if (!userData.categoryBudgets) {
+        userData.categoryBudgets = new Map();
+      }
+      userData.categoryBudgets.set(categoryId, amount);
+      userData.updatedAt = Date.now();
+    }
+    
+    await userData.save();
+    // Convert Map to plain object for JSON response
+    const categoryBudgetsObj = userData.categoryBudgets ? Object.fromEntries(userData.categoryBudgets) : {};
+    res.json({ message: 'Category budget updated successfully', categoryBudgets: categoryBudgetsObj });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
