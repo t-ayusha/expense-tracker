@@ -268,12 +268,12 @@ const Settings = () => {
                         <button onClick={() => setEditingCategoryBudget(null)}>✕</button>
                       </div>
                     ) : (
-                      <span className="category-budget">
+                      <button className="category-budget-btn" onClick={() => handleEditCategoryBudget(category)}>
                         {categoryBudgets[category._id] > 0 
                           ? `${formatCurrency(categoryBudgets[category._id])}` 
-                          : <button className="set-budget-btn" onClick={() => handleEditCategoryBudget(category)}>Set Budget</button>
+                          : 'Set Budget'
                         }
-                      </span>
+                      </button>
                     )}
                   </div>
                   <div className="category-actions">

@@ -282,6 +282,26 @@
   color: #666;
 }
 
+.category-budget-btn {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border: 1px solid #e0e8ff;
+  cursor: pointer;
+  color: #667eea;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 13px;
+  box-shadow: 0 1px 3px rgba(102, 126, 234, 0.1);
+}
+
+.category-budget-btn:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
 .set-budget-btn {
   padding: 4px 8px;
   background: #f0f0f0;

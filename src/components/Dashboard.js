@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useExpenses } from '../context/ExpenseContext';
+import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../utils/storage';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { data, getExpensesByCategory, getTotalExpenses, getCurrentMonthExpenses } = useExpenses();
+  const { user } = useAuth();
   const [showBudgetAlerts, setShowBudgetAlerts] = useState(false);
   const [budgetAlertsData, setBudgetAlertsData] = useState([]);
   const [showCategoryProgress, setShowCategoryProgress] = useState(false);
+  const [selectedCategoryAlert, setSelectedCategoryAlert] = useState(null);
   
   const categoryTotals = getExpensesByCategory();
   const totalExpenses = getTotalExpenses();
@@ -77,6 +80,47 @@ const Dashboard = () => {
 
   const budget = data.budget || 0;
   const budgetPercentage = budget > 0 ? (currentMonthExpenses / budget) * 100 : 0;
+  
+// Auto-show popup EVERY Dashboard load/refresh if over budget (useEffect runs on mount)
+  useEffect(() => {
+    
+    // Check if monthly budget is over
+    if (budget > 0 && budgetPercentage >= 100) {
+      setSelectedCategoryAlert({
+        _id: 'monthly',
+        name: 'Monthly Budget',
+        icon: '🎯',
+        color: '#f5576c',
+        budget: budget,
+        spent: currentMonthExpenses,
+        percentage: budgetPercentage,
+        type: 'over'
+      });
+      return;
+    }
+    
+    // Check if any category is near or over budget
+    const firstAlertCategory = data.categories.find(category => {
+      const catBudget = data.categoryBudgets?.[category._id];
+      if (!catBudget || catBudget <= 0) return false;
+      const catSpent = currentMonthCategoryTotals[category._id] || 0;
+      const catPercentage = (catSpent / catBudget) * 100;
+      return catPercentage >= 90;
+    });
+    
+    if (firstAlertCategory) {
+      const catBudget = data.categoryBudgets[firstAlertCategory._id] || 0;
+      const catSpent = currentMonthCategoryTotals[firstAlertCategory._id] || 0;
+      const catPercentage = catBudget > 0 ? (catSpent / catBudget) * 100 : 0;
+      setSelectedCategoryAlert({
+        ...firstAlertCategory,
+        budget: catBudget,
+        spent: catSpent,
+        percentage: catPercentage,
+        type: catPercentage >= 100 ? 'over' : 'near'
+      });
+    }
+  }, [user, data.categoryBudgets, data.categories, currentMonthCategoryTotals, budget, budgetPercentage, currentMonthExpenses]);
 
   return (
     <div className="dashboard">
@@ -99,6 +143,50 @@ const Dashboard = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedCategoryAlert && (
+        <div className="budget-alert-modal" onClick={() => setSelectedCategoryAlert(null)}>
+          <div className="budget-alert-content" onClick={(e) => e.stopPropagation()}>
+            <div className="budget-alert-header">
+              <h3>{selectedCategoryAlert.type === 'over' ? '🚨 Over Budget' : '⚠️ Near Budget'}</h3>
+              <button className="close-alert" onClick={() => setSelectedCategoryAlert(null)}>x</button>
+            </div>
+            <div className="category-alert-detail">
+              <div className="category-alert-icon" style={{ backgroundColor: selectedCategoryAlert.color }}>
+                {selectedCategoryAlert.icon}
+              </div>
+              <h4>{selectedCategoryAlert.name}</h4>
+              <div className="category-alert-progress">
+                <div className="category-alert-progress-bar">
+                  <div 
+                    className={`category-alert-progress-fill ${selectedCategoryAlert.type === 'over' ? 'over-budget' : 'near-budget'}`}
+                    style={{ width: `${Math.min(selectedCategoryAlert.percentage, 100)}%` }}
+                  />
+                </div>
+                <span className={`category-alert-percent ${selectedCategoryAlert.type}`}>
+                  {selectedCategoryAlert.percentage.toFixed(1)}%
+                </span>
+              </div>
+              <div className="category-alert-amounts">
+                <div className="category-alert-amount">
+                  <span>Spent</span>
+                  <strong>{formatCurrency(selectedCategoryAlert.spent)}</strong>
+                </div>
+                <div className="category-alert-amount">
+                  <span>Budget</span>
+                  <strong>{formatCurrency(selectedCategoryAlert.budget)}</strong>
+                </div>
+                <div className="category-alert-amount">
+                  <span>Remaining</span>
+                  <strong className={selectedCategoryAlert.type}>
+                    {formatCurrency(Math.max(0, selectedCategoryAlert.budget - selectedCategoryAlert.spent))}
+                  </strong>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -171,8 +259,19 @@ const Dashboard = () => {
                       const catBudget = data.categoryBudgets[category._id] || 0;
                       const catSpent = currentMonthCategoryTotals[category._id] || 0;
                       const catPercentage = catBudget > 0 ? (catSpent / catBudget) * 100 : 0;
+                      const isAlert = catPercentage >= 90;
                       return (
-                        <div key={category._id} className="category-progress-item">
+                        <div 
+                          key={category._id} 
+                          className={`category-progress-item ${isAlert ? 'clickable' : ''}`}
+                          onClick={() => isAlert && setSelectedCategoryAlert({
+                            ...category,
+                            budget: catBudget,
+                            spent: catSpent,
+                            percentage: catPercentage,
+                            type: catPercentage >= 100 ? 'over' : 'near'
+                          })}
+                        >
                           <div className="category-progress-info">
                             <span className="category-progress-icon" style={{ backgroundColor: category.color }}>
                               {category.icon}
@@ -262,19 +361,6 @@ const Dashboard = () => {
                           {totalExpenses > 0 ? ((item.value / totalExpenses) * 100).toFixed(1) : 0}%
                         </span>
                       </div>
-                      {showCategoryProgress && catBudget > 0 && (
-                        <div className="category-budget-progress">
-                          <div className="cat-progress-bar">
-                            <div 
-                              className={`cat-progress-fill ${catPercentage > 100 ? 'over-budget' : catPercentage >= 90 ? 'near-budget' : ''}`}
-                              style={{ width: `${Math.min(catPercentage, 100)}%` }}
-                            />
-                          </div>
-                          <span className={`cat-budget-status ${catPercentage > 100 ? 'over' : catPercentage >= 90 ? 'near' : ''}`}>
-                            {catPercentage.toFixed(0)}%
-                          </span>
-                        </div>
-                      )}
                     </div>
                   );
                 })
@@ -287,6 +373,7 @@ const Dashboard = () => {
     </div>
   );
 };
+console.log({budget: window.localStorage.getItem('expense_budget'), user: window.localStorage.getItem('expense_current_user'), categories: window.localStorage.getItem('expense_categories')})
 
 export default Dashboard;
 
